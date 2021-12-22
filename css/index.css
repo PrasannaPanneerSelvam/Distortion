@@ -1,0 +1,45 @@
+* {
+  margin: 0;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+:root {
+  --canvas-bg: #2e2e2e;
+  --cloud-text-color: #14cfae;
+}
+
+body {
+  background-color: var(--canvas-bg);
+}
+
+#myCanvas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background-color: black;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+footer div {
+  margin: 10px 15px;
+  text-align: right;
+  font-size: 18px;
+  color: #eeeeee;
+}
+
+footer a {
+  color: aqua;
+  font-size: 18px;
+}
+/*# sourceMappingURL=index.css.map */
