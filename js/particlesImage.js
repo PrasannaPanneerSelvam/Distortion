@@ -1,5 +1,5 @@
 const PixelEffect = (function () {
-  const mouse = { x: undefined, y: undefined, radius: 100 };
+  const mouse = { x: undefined, y: undefined, radius: 50 };
   class Particle {
     #originalX;
     #originalY;
@@ -106,7 +106,7 @@ const PixelEffect = (function () {
             continue;
           }
 
-          const startIndex = row * 4 * rowCount + col * 4,
+          const startIndex = row * 4 * colCount + col * 4,
             rVal = data[startIndex],
             gVal = data[startIndex + 1],
             bVal = data[startIndex + 2],
@@ -124,15 +124,17 @@ const PixelEffect = (function () {
     }
 
     render() {
-      const arr = this.#particleArray;
+      const arr = this.#particleArray,
+        { width, height } = this.#canvas,
+        ctx = this.#ctx;
 
       function animate() {
-        this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
-        arr.forEach(i => i.update().draw(this.#ctx));
-        requestAnimationFrame(animate.bind(this));
+        ctx.clearRect(0, 0, width, height);
+        arr.forEach(i => i.update().draw(ctx));
+        requestAnimationFrame(animate);
       }
 
-      animate.call(this);
+      animate();
     }
   }
 
