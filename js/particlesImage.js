@@ -6,7 +6,8 @@ const PixelEffect = (function () {
     #x;
     #y;
     #color;
-    #size;
+    #squareSize;
+    #blockRadius;
     #mouseObj;
 
     constructor(x, y, rgbaValues, mouseObj = {}) {
@@ -15,7 +16,8 @@ const PixelEffect = (function () {
       this.#x = x;
       this.#y = y;
       this.#color = rgbaValues || [255, 255, 255];
-      this.#size = 1;
+      this.#squareSize = 4.5;
+      this.#blockRadius = 2.5;
 
       this.#mouseObj = mouseObj;
 
@@ -25,8 +27,17 @@ const PixelEffect = (function () {
     draw(ctx) {
       ctx.fillStyle = 'blue';
       ctx.fillStyle = `rgb(${this.#color.join(',')})`;
+      // this.#drawCircularBlock(ctx);
+      this.#drawSquareBlock(ctx);
+    }
+
+    #drawSquareBlock(ctx) {
+      ctx.fillRect(this.#x, this.#y, this.#squareSize, this.#squareSize);
+    }
+
+    #drawCircularBlock(ctx) {
       ctx.beginPath();
-      ctx.arc(this.#x, this.#y, this.#size, 0, 360);
+      ctx.arc(this.#x, this.#y, this.#blockRadius, 0, 360);
       ctx.closePath();
       ctx.fill();
     }
