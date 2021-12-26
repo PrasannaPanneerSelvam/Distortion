@@ -1,5 +1,5 @@
 const PixelEffect = (function () {
-  const mouse = { x: undefined, y: undefined, radius: 50 };
+  // const mouse = { x: undefined, y: undefined, radius: 50 };
   class Particle {
     #originalX;
     #originalY;
@@ -10,7 +10,7 @@ const PixelEffect = (function () {
     #blockRadius;
     #mouseObj;
 
-    constructor(x, y, rgbaValues, mouseObj = {}) {
+    constructor(x, y, rgbaValues, options = {}) {
       this.#originalX = x;
       this.#originalY = y;
       this.#x = x;
@@ -19,7 +19,8 @@ const PixelEffect = (function () {
       this.#squareSize = 4.5;
       this.#blockRadius = 2.5;
 
-      this.#mouseObj = mouseObj;
+      const mouse = { x: undefined, y: undefined, radius: 50 };
+      this.#mouseObj = options.mouse ?? mouse;
 
       this.density = 10;
     }
@@ -42,8 +43,13 @@ const PixelEffect = (function () {
       ctx.fill();
     }
 
-    update() {
-      const { x, y, radius } = this.#mouseObj;
+    update(blast) {
+      let { x, y, radius } = this.#mouseObj;
+
+      if (blast !== 0) {
+        radius += blast;
+      }
+
       let dx = x - this.#x,
         dy = y - this.#y,
         distance = Math.sqrt(dx ** 2 + dy ** 2);
@@ -72,11 +78,22 @@ const PixelEffect = (function () {
     #ctx;
     #canvas;
     #image;
+    #canvasOffset;
+    #contentOffset;
+    #mouseObj;
 
-    constructor(canvasObj, ctx, image) {
+    constructor(canvasObj, ctx, image, contentOffset = { x: 0, y: 0 }) {
       this.#canvas = canvasObj;
       this.#ctx = ctx;
       this.#image = image;
+      this.blast = 0;
+
+      this.#mouseObj = { x: undefined, y: undefined, radius: 50 };
+
+      const { x, y } = canvasObj.getBoundingClientRect();
+      this.#canvasOffset = { x, y };
+      this.#contentOffset = contentOffset;
+
       this.#initiate();
     }
 
@@ -87,17 +104,22 @@ const PixelEffect = (function () {
 
     #setImageData() {
       const width = this.#image.width,
-        height = this.#image.height;
+        height = this.#image.height,
+        startX = this.#contentOffset.x,
+        startY = this.#contentOffset.y;
 
-      this.#ctx.drawImage(this.#image, 0, 0, width, height);
-      this.#pixelArray = this.#ctx.getImageData(0, 0, width, height);
-      this.#ctx.clearRect(0, 0, width, height);
+      this.#ctx.drawImage(this.#image, startX, startY, width, height);
+      this.#pixelArray = this.#ctx.getImageData(startX, startY, width, height);
+      this.#ctx.clearRect(startX, startY, width, height);
     }
 
     #scanImageDataAndCreateParticles() {
       const data = this.#pixelArray.data,
         rowCount = this.#image.height,
-        colCount = this.#image.width;
+        colCount = this.#image.width,
+        startX = this.#contentOffset.x,
+        startY = this.#contentOffset.y,
+        mouse = this.#mouseObj;
 
       let skip = 5,
         n = 0,
@@ -122,12 +144,12 @@ const PixelEffect = (function () {
             gVal = data[startIndex + 1],
             bVal = data[startIndex + 2],
             aVal = data[startIndex + 3],
-            x = col,
-            y = row;
+            x = col + startX,
+            y = row + startY;
 
           if (aVal !== 0) {
             this.#particleArray.push(
-              new Particle(x, y, [rVal, gVal, bVal], mouse)
+              new Particle(x, y, [rVal, gVal, bVal], { mouse })
             );
           }
         }
@@ -141,18 +163,57 @@ const PixelEffect = (function () {
 
       function animate() {
         ctx.clearRect(0, 0, width, height);
-        arr.forEach(i => i.update().draw(ctx));
-        requestAnimationFrame(animate);
+        const b = this.blast;
+        arr.forEach(i => i.update(b).draw(ctx));
+        if (this.blast > 0) this.blast -= 2;
+        requestAnimationFrame(animate.bind(this));
       }
 
-      animate();
+      animate.call(this);
+    }
+
+    mountMouseEvents(listenerLayout) {
+      const eventMap = {
+        mousemove: this.#mousemoveEvent(),
+        mouseleave: this.#mouseleaveEvent(),
+        mouseenter: this.#mouseenterEvent(),
+        click: this.#clickEvent(),
+      };
+
+      for (const [eventName, eventCallback] of Object.entries(eventMap))
+        listenerLayout.addEventListener(eventName, eventCallback.bind(this));
+    }
+
+    #mousemoveEvent() {
+      const store = this.#canvasOffset,
+        mouse = this.#mouseObj;
+
+      return function ({ x, y }) {
+        mouse.x = x - store.x;
+        mouse.y = y - store.y;
+      };
+    }
+
+    #clickEvent() {
+      return () => (this.blast = 100);
+    }
+
+    #mouseenterEvent() {
+      const mouse = this.#mouseObj;
+      return function ({ x, y }) {
+        mouse.x = x;
+        mouse.y = y;
+      };
+    }
+
+    #mouseleaveEvent() {
+      const mouse = this.#mouseObj;
+      return function () {
+        mouse.x = 0;
+        mouse.y = 0;
+      };
     }
   }
-
-  PixelEffect.mouseMoveEvent = ({ x, y }) => {
-    mouse.x = x;
-    mouse.y = y;
-  };
 
   return PixelEffect;
 })();
@@ -169,8 +230,6 @@ const handleImages = (function () {
   setCanvasDimensions();
   window.addEventListener('resize', setCanvasDimensions);
 
-  canvas.addEventListener('mousemove', PixelEffect.mouseMoveEvent);
-
   function handleImages(imageUrl) {
     const htmlImage = new Image();
     htmlImage.src = imageUrl;
@@ -178,7 +237,8 @@ const handleImages = (function () {
     htmlImage.width = 400;
 
     htmlImage.onload = function () {
-      const effect = new PixelEffect(canvas, ctx, htmlImage);
+      const effect = new PixelEffect(canvas, ctx, htmlImage, { x: 80, y: 30 });
+      effect.mountMouseEvents(canvas);
       effect.render();
     };
   }
