@@ -172,6 +172,7 @@ const PixelEffect = (function () {
       animate.call(this);
     }
 
+    // ? Should this api need to be public ?
     mountMouseEvents(listenerLayout) {
       const eventMap = {
         mousemove: this.#mousemoveEvent(),

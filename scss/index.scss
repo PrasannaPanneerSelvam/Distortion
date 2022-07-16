@@ -5,12 +5,14 @@
 }
 
 :root {
-  --canvas-bg: #2e2e2e;
+  // --canvas-bg: #2e2e2e;
+  --canvas-bg: #000;
 
   --cloud-text-color: #14cfae;
 }
 
 body {
+  height: 100vh;
   background-color: var(--canvas-bg);
 }
 
@@ -20,7 +22,7 @@ body {
   top: 50%;
   transform: translate(-50%, -50%);
 
-  // background-color: var(--canvas-bg);
+  background-color: var(--canvas-bg);
   max-width: 100vw;
   max-height: 100vh;
 }
@@ -39,5 +41,18 @@ footer {
   a {
     color: aqua;
     font-size: 18px;
+  }
+}
+
+.input-image-holder {
+  display: inline-block;
+  margin: 5px 5px;
+
+  padding: 5px;
+  background: silver;
+  border: 1px solid #2e2e2e;
+
+  input[type='file'] {
+    display: none;
   }
 }
