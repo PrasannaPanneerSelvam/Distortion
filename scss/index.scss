@@ -20,10 +20,9 @@ body {
   top: 50%;
   transform: translate(-50%, -50%);
 
-  width: 100%;
-  height: 100%;
-
-  background-color: black;
+  // background-color: var(--canvas-bg);
+  max-width: 100vw;
+  max-height: 100vh;
 }
 
 footer {
