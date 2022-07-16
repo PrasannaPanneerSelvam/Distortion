@@ -20,9 +20,8 @@ const handleImage = (function () {
   setCanvasDimensions();
   window.addEventListener('resize', setCanvasDimensions);
 
-  function handleImage(imageUrl) {
+  function handleImage(inputData) {
     const htmlImage = new Image();
-    htmlImage.src = imageUrl;
 
     htmlImage.onload = function () {
       loadedImageHeight = htmlImage.height;
@@ -38,8 +37,21 @@ const handleImage = (function () {
       effect.mountMouseEvents(canvas);
       effect.render();
     };
+
+    if (typeof inputData === 'string') {
+      htmlImage.src = inputData;
+    } else {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        htmlImage.src = event.target.result;
+      };
+      reader.readAsDataURL(inputData);
+    }
   }
   return handleImage;
 })();
 
 handleImage('./images/html.png');
+
+const imageInput = document.getElementById('input-image');
+imageInput.addEventListener('change', (e) => handleImage(e.target.files[0]));
