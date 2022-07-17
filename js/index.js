@@ -72,7 +72,7 @@ class DistortionEffect {
         setTimeout(() => {
           this.#pixelEffect.updateMousePoints(point);
           if (idx === arr.length - 1) this.#timeoutIds = [];
-        }, idx * 30)
+        }, point.t)
       )
     );
   }
@@ -106,18 +106,27 @@ class DistortionEffect {
   }
 }
 
-const DistortionObject = new DistortionEffect('myCanvas');
+window.onload = function () {
+  const DistortionObject = new DistortionEffect('myCanvas');
 
-// Default image for preview
-DistortionObject.handleImage('./images/html.png');
+  // Default image for preview
+  DistortionObject.handleImage('./images/html.png');
 
-const imageInput = document.getElementById('input-image');
-imageInput.addEventListener('change', (e) =>
-  DistortionObject.handleImage(e.target.files[0])
-);
+  const imageInput = document.getElementById('input-image');
+  imageInput.addEventListener('change', (e) =>
+    DistortionObject.handleImage(e.target.files[0])
+  );
 
-const demoBtn = document.getElementById('demo-btn');
-demoBtn.addEventListener(
-  'click',
-  DistortionObject.showDemo.bind(DistortionObject)
-);
+  if (window.location.hash === '#demo') {
+    const demoBtn = document.createElement('button');
+    demoBtn.textContent = 'Show Demo';
+    demoBtn.id = 'demo-btn';
+    demoBtn.addEventListener(
+      'click',
+      DistortionObject.showDemo.bind(DistortionObject)
+    );
+
+    const canvas = document.getElementById('myCanvas');
+    document.body.insertBefore(demoBtn, canvas);
+  }
+};
