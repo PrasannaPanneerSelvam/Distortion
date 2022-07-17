@@ -25,6 +25,10 @@ const PixelEffect = (function () {
       this.density = 10;
     }
 
+    updateMouseRadius(inp) {
+      this.#mouseObj.radius = inp;
+    }
+
     draw(ctx) {
       ctx.fillStyle = 'blue';
       ctx.fillStyle = `rgb(${this.#color.join(',')})`;
@@ -82,13 +86,13 @@ const PixelEffect = (function () {
     #contentOffset;
     #mouseObj;
 
-    constructor(canvasObj, ctx, image, contentOffset = { x: 0, y: 0 }) {
+    constructor(canvasObj, ctx, image, contentOffset = { x: 0, y: 0 }, mouseRadius = 50) {
       this.#canvas = canvasObj;
       this.#ctx = ctx;
       this.#image = image;
       this.blast = 0;
 
-      this.#mouseObj = { x: undefined, y: undefined, radius: 50 };
+      this.#mouseObj = { x: undefined, y: undefined, radius: mouseRadius };
 
       const { x, y } = canvasObj.getBoundingClientRect();
       this.#canvasOffset = { x, y };
@@ -172,6 +176,7 @@ const PixelEffect = (function () {
       animate.call(this);
     }
 
+    // ? Should this api need to be public ?
     mountMouseEvents(listenerLayout) {
       const eventMap = {
         mousemove: this.#mousemoveEvent(),
@@ -212,6 +217,12 @@ const PixelEffect = (function () {
         mouse.x = 0;
         mouse.y = 0;
       };
+    }
+
+    updateMouseRadius(inputRadius) {
+      this.#particleArray.forEach((particle) =>
+        particle.updateMouseRadius(inputRadius)
+      );
     }
   }
 
