@@ -199,6 +199,11 @@ const PixelEffect = (function () {
       };
     }
 
+    updateMousePoints({ x, y }) {
+      this.#mouseObj.x = x;
+      this.#mouseObj.y = y;
+    }
+
     #clickEvent() {
       return () => (this.blast = 100);
     }

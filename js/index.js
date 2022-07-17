@@ -1,4 +1,5 @@
 import PixelEffect from './ParticleImage.js';
+import DemoPoints from './DemoPoints.js';
 
 class DistortionEffect {
   #canvas;
@@ -13,6 +14,8 @@ class DistortionEffect {
   #htmlImage;
   #pixelEffect;
   #mouseRadius;
+
+  #timeoutIds;
 
   // ? Do we need to have this based on screen dimensions
   verticalPadding = 30;
@@ -57,6 +60,21 @@ class DistortionEffect {
     effect.render();
 
     this.#pixelEffect = effect;
+    this.#timeoutIds = [];
+  }
+
+  showDemo() {
+    this.#timeoutIds.forEach(clearTimeout);
+    this.#timeoutIds = [];
+
+    DemoPoints.forEach((point, idx, arr) =>
+      this.#timeoutIds.push(
+        setTimeout(() => {
+          this.#pixelEffect.updateMousePoints(point);
+          if (idx === arr.length - 1) this.#timeoutIds = [];
+        }, idx * 30)
+      )
+    );
   }
 
   #setCanvasDimensions() {
@@ -96,4 +114,10 @@ DistortionObject.handleImage('./images/html.png');
 const imageInput = document.getElementById('input-image');
 imageInput.addEventListener('change', (e) =>
   DistortionObject.handleImage(e.target.files[0])
+);
+
+const demoBtn = document.getElementById('demo-btn');
+demoBtn.addEventListener(
+  'click',
+  DistortionObject.showDemo.bind(DistortionObject)
 );
