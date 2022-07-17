@@ -1,6 +1,8 @@
 import PixelEffect from './ParticleImage.js';
 import DemoPoints from './DemoPoints.js';
 
+let showDemoOnLoop = false;
+
 class DistortionEffect {
   #canvas;
   #ctx;
@@ -56,7 +58,7 @@ class DistortionEffect {
       this.#mouseRadius
     );
 
-    effect.mountMouseEvents(this.#canvas);
+    if (!showDemoOnLoop) effect.mountMouseEvents(this.#canvas);
     effect.render();
 
     this.#pixelEffect = effect;
@@ -71,7 +73,10 @@ class DistortionEffect {
       this.#timeoutIds.push(
         setTimeout(() => {
           this.#pixelEffect.updateMousePoints(point);
-          if (idx === arr.length - 1) this.#timeoutIds = [];
+          if (idx === arr.length - 1) {
+            this.#timeoutIds = [];
+            if (showDemoOnLoop) this.showDemo();
+          }
         }, point.t)
       )
     );
@@ -92,6 +97,8 @@ class DistortionEffect {
       this.#aspectRatio = this.#loadedImageWidth / this.#loadedImageHeight;
 
       this.#alterHeightAndCreateCanvas();
+
+      if (showDemoOnLoop) this.showDemo();
     };
 
     if (typeof inputData === 'string') {
@@ -109,6 +116,13 @@ class DistortionEffect {
 window.onload = function () {
   const DistortionObject = new DistortionEffect('myCanvas');
 
+  if (window.location.hash === '#demo') {
+    showDemoOnLoop = true;
+    ['input-image-holder', 'src-footer'].forEach((_id) => {
+      document.getElementById(_id).style.display = 'none';
+    });
+  }
+
   // Default image for preview
   DistortionObject.handleImage('./images/html.png');
 
@@ -116,17 +130,4 @@ window.onload = function () {
   imageInput.addEventListener('change', (e) =>
     DistortionObject.handleImage(e.target.files[0])
   );
-
-  if (window.location.hash === '#demo') {
-    const demoBtn = document.createElement('button');
-    demoBtn.textContent = 'Show Demo';
-    demoBtn.id = 'demo-btn';
-    demoBtn.addEventListener(
-      'click',
-      DistortionObject.showDemo.bind(DistortionObject)
-    );
-
-    const canvas = document.getElementById('myCanvas');
-    document.body.insertBefore(demoBtn, canvas);
-  }
 };
