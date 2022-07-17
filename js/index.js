@@ -11,16 +11,25 @@ class DistortionEffect {
   #aspectRatio;
 
   #htmlImage;
+  #pixelEffect;
+  #mouseRadius;
 
   // ? Do we need to have this based on screen dimensions
   verticalPadding = 30;
   horizontalPadding = 80;
 
   constructor(canvasId) {
-    (this.#canvas = document.getElementById(canvasId)),
-      (this.#ctx = this.#canvas.getContext('2d'));
+    this.#canvas = document.getElementById(canvasId);
+    this.#ctx = this.#canvas.getContext('2d');
+    this.#pixelEffect = null;
+    this.#mouseRadius = 50;
 
     window.addEventListener('resize', this.#setCanvasDimensions.bind(this));
+  }
+
+  updateMouseRadius(inputRadius) {
+    this.#pixelEffect.updateMouseRadius(inputRadius);
+    this.#mouseRadius = inputRadius;
   }
 
   #alterHeightAndCreateCanvas() {
@@ -33,13 +42,21 @@ class DistortionEffect {
 
     this.#setCanvasDimensions();
 
-    const effect = new PixelEffect(this.#canvas, this.#ctx, this.#htmlImage, {
-      x: this.horizontalPadding,
-      y: this.verticalPadding,
-    });
+    const effect = new PixelEffect(
+      this.#canvas,
+      this.#ctx,
+      this.#htmlImage,
+      {
+        x: this.horizontalPadding,
+        y: this.verticalPadding,
+      },
+      this.#mouseRadius
+    );
 
     effect.mountMouseEvents(this.#canvas);
     effect.render();
+
+    this.#pixelEffect = effect;
   }
 
   #setCanvasDimensions() {
