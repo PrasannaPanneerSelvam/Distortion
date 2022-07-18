@@ -124,7 +124,7 @@ window.onload = function () {
   }
 
   // Default image for preview
-  DistortionObject.handleImage('./images/html.png');
+  DistortionObject.handleImage('./images/html.svg');
 
   const imageInput = document.getElementById('input-image');
   imageInput.addEventListener('change', (e) =>
