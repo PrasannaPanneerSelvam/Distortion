@@ -5,7 +5,7 @@ let showDemoOnLoop = false;
 
 class DistortionEffect {
   private canvas: Maybe<HTMLCanvasElement>;
-  private ctx;
+  private ctx: CanvasRenderingContext2D;
 
   private loadedImageHeight: number;
   private loadedImageWidth: number;
